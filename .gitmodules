@@ -1,0 +1,3 @@
+[submodule "minDiffusion"]
+	path = minDiffusion
+	url = https://github.com/DenDiv/minDiffusion.git
