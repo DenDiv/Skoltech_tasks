@@ -3,6 +3,7 @@ from typing import List, Tuple
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
+from itertools import combinations
 
 
 class Node:
@@ -74,6 +75,14 @@ class Graph:
         img_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'plots/graph.png')
         plt.savefig(img_path)
 
+    @property
+    def node_names(self):
+        return self._node_names
+
+    @property
+    def adj_matrix(self):
+        return self._adj_matrix
+
 
 def gen_random_graph(num_nodes: int, num_edges: int) -> Graph:
     max_edges = num_nodes*(num_nodes-1)//2
@@ -100,6 +109,46 @@ def gen_random_graph(num_nodes: int, num_edges: int) -> Graph:
     return gr
 
 
+def inv_friends_dummy(gr: Graph):
+    def isDiagMatrix(matr):
+        if np.sum(matr) == matr.shape[0]:
+            return True
+        else:
+            return False
+
+    node_names = gr.node_names
+    adj_matr = np.zeros((len(node_names), len(node_names)), dtype=int)
+    np.fill_diagonal(adj_matr, 1)
+
+    for i in range(len(node_names)):
+        for j in range(i + 1, len(node_names)):
+            if gr.adj_matrix[node_names[i]][node_names[j]]:
+                adj_matr[i][j], adj_matr[j][i] = 1, 1
+
+    comb_degree = len(node_names)
+    names_idxs = list(range(len(node_names)))
+    final_comb = []
+    while comb_degree != 1 and not final_comb:
+        combs = combinations(names_idxs, comb_degree)
+        for comb in combs:
+            if isDiagMatrix(adj_matr[np.ix_(comb, comb)]):
+                final_comb = comb
+                break
+        comb_degree -= 1
+
+    final_friend_names = [node_names[i] for i in final_comb]
+    if comb_degree == 1:
+        print(f"You can select an arbitary 1 friend: {node_names}")
+    else:
+        print(f"Maximum you can invite: {comb_degree + 1} friends: {final_friend_names}")
+    return
+
+
 if __name__ == "__main__":
-    gr = gen_random_graph(10, 15)
+    # nodes_1 = [Node("a", {'val': 1}), Node("b", {'val': 2}), Node("c", {'val': 3}), Node("d", {'val': 4}),
+    #            Node("e", {'val': 5}), Node("f", {'val': 6})]
+    # connections_1 = [('a', 'c'), ('b', 'd'), ('c', 'f'), ('c', 'e'), ('c', 'd'), ('d', 'f')]
+    # gr = Graph(nodes_1, connections_1)
+    gr = gen_random_graph(6, 10)
+    inv_friends_dummy(gr)
     gr.plot_graph()

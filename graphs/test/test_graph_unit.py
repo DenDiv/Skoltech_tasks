@@ -1,5 +1,5 @@
 import unittest
-from graph import Node, Graph
+from graph import Node, Graph, gen_random_graph
 
 
 class TestGraphFunc(unittest.TestCase):
@@ -36,6 +36,18 @@ class TestGraphFunc(unittest.TestCase):
 
         connections_3 = [('a', 'd')]
         self.assertRaises(Exception, gr.add_cons, connections_3, "exception didn't raise, existed node added")
+
+    def test_graph_gen(self):
+        gr = gen_random_graph(10, 15)
+        self.assertEqual(len(gr._node_names), 10)
+        edg_count = 0
+        for i in range(len(gr._node_names)):
+            for j in range(i+1, len(gr._node_names)):
+                if gr._adj_matrix[gr._node_names[i]][gr._node_names[j]]:
+                    edg_count += 1
+        self.assertEqual(edg_count, 15)
+        self.assertRaises(Exception, gen_random_graph, 0, 15)
+        self.assertRaises(Exception, gen_random_graph, 10, 150)
 
 
 if __name__ == '__main__':
