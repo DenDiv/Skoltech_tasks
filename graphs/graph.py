@@ -2,6 +2,7 @@ import os.path
 from typing import List, Tuple
 import networkx as nx
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class Node:
@@ -17,13 +18,13 @@ class Node:
 
 
 class Graph:
-    def __init__(self, nodes: List[Node], connections: List[Tuple[str, str]]):
+    def __init__(self, nodes: List[Node] = [], connections: List[Tuple[str, str]] = []):
         self._graph = {}
         self._adj_matrix = {}
         # add nodes
         for node in nodes:
             assert node.name not in self._graph.keys(), f"Node with name: {node.name} is already exists"
-            self._graph[node.name] = Node
+            self._graph[node.name] = node
         self._node_names = list(self._graph.keys())
 
         # init adj matrix
@@ -45,10 +46,11 @@ class Graph:
             self._adj_matrix[con[0]][con[1]] = 1
             self._adj_matrix[con[1]][con[0]] = 1
 
-    def add_node(self, node: Node, node_cons: List[Tuple[str, str]]):
+    def add_node(self, node: Node, node_cons: List[Tuple[str, str]] = []):
 
         assert node.name not in self._graph.keys(), f"Node with name: {node.name} is already exists"
         self._node_names.append(node.name)
+        self._graph[node.name] = node
 
         self._adj_matrix[node.name] = {}
         for exist_name in self._graph.keys():
@@ -64,17 +66,40 @@ class Graph:
     def plot_graph(self):
         pl_graph = nx.Graph()
         for i in range(len(self._node_names)):
+            pl_graph.add_node(self._node_names[i])
             for j in range(i+1, len(self._node_names)):
                 if self._adj_matrix[self._node_names[i]][self._node_names[j]]:
                     pl_graph.add_edge(self._node_names[i], self._node_names[j])
-        nx.draw_networkx(pl_graph, with_labels=True, node_size=800)
+        nx.draw_networkx(pl_graph, with_labels=True, node_size=200)
         img_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'plots/graph.png')
         plt.savefig(img_path)
 
 
+def gen_random_graph(num_nodes: int, num_edges: int) -> Graph:
+    max_edges = num_nodes*(num_nodes-1)//2
+    assert num_edges <= max_edges, f"num edges: {num_edges} more than max_edges: {max_edges}"
+
+    node_list = [Node(str(i), {'val': 0}) for i in range(num_nodes)]
+
+    # randomly select edges
+    adj_matr_half = [0]*max_edges
+    rand_pos = np.random.choice(list(range(max_edges)), size=num_edges, replace=False)
+    for i in rand_pos:
+        adj_matr_half[i] = 1
+
+    # create connections
+    adj_matr_ind = 0
+    con_list = []
+    for i in range(num_nodes - 1):
+        for j in range(i+1, num_nodes):
+            if adj_matr_half[adj_matr_ind]:
+                con_list.append((node_list[i].name, node_list[j].name))
+            adj_matr_ind += 1
+
+    gr = Graph(node_list, con_list)
+    return gr
+
+
 if __name__ == "__main__":
-    nodes_1 = [Node("a", {'val': 1}), Node("b", {'val': 2}), Node("c", {'val': 3}), Node("d", {'val': 4}),
-             Node("e", {'val': 5}), Node("f", {'val': 6})]
-    connections_1 = [('a', 'c'), ('b', 'd'), ('c', 'f'), ('c', 'e'), ('c', 'd'), ('d', 'f')]
-    gr = Graph(nodes_1, connections_1)
+    gr = gen_random_graph(10, 15)
     gr.plot_graph()
