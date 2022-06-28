@@ -4,6 +4,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
 from itertools import combinations
+from optparse import OptionParser
 
 
 class Node:
@@ -152,8 +153,11 @@ if __name__ == "__main__":
     """
     Generates random graph and solve task
     """
-    num_nodes = 10
-    num_edges = 25
-    gr = gen_random_graph(num_nodes, num_edges)
+    parser = OptionParser()
+    parser.add_option("--num_nodes", dest="num_nodes", type=int, default=5)
+    parser.add_option("--num_edges", dest="num_edges", type=int, default=7)
+    (options, args) = parser.parse_args()
+
+    gr = gen_random_graph(options.num_nodes, options.num_edges)
     inv_friends_dummy(gr)
     gr.plot_graph()
