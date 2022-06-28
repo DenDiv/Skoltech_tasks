@@ -153,6 +153,7 @@ if __name__ == "__main__":
     """
     Generates random graph and solve task
     """
+
     parser = OptionParser()
     parser.add_option("--num_nodes", dest="num_nodes", type=int, default=5)
     parser.add_option("--num_edges", dest="num_edges", type=int, default=7)
