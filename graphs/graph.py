@@ -64,7 +64,7 @@ class Graph:
     def add_cons(self, new_cons: List[Tuple[str, str]]):
         self._update_cons(new_cons)
 
-    def plot_graph(self):
+    def plot_graph(self, file_name='plots/graph.png'):
         pl_graph = nx.Graph()
         for i in range(len(self._node_names)):
             pl_graph.add_node(self._node_names[i])
@@ -72,8 +72,11 @@ class Graph:
                 if self._adj_matrix[self._node_names[i]][self._node_names[j]]:
                     pl_graph.add_edge(self._node_names[i], self._node_names[j])
         nx.draw_networkx(pl_graph, with_labels=True, node_size=200)
-        img_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'plots/graph.png')
+        img_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)
+        if not os.path.exists(os.path.dirname(img_path)):
+            os.mkdir(os.path.dirname(img_path))
         plt.savefig(img_path)
+        plt.clf()
 
     @property
     def node_names(self):
@@ -137,18 +140,20 @@ def inv_friends_dummy(gr: Graph):
         comb_degree -= 1
 
     final_friend_names = [node_names[i] for i in final_comb]
-    if comb_degree == 1:
+    if not final_comb:
         print(f"You can select an arbitary 1 friend: {node_names}")
+        final_friend_names = ['0']
     else:
         print(f"Maximum you can invite: {comb_degree + 1} friends: {final_friend_names}")
-    return
+    return final_friend_names
 
 
 if __name__ == "__main__":
-    # nodes_1 = [Node("a", {'val': 1}), Node("b", {'val': 2}), Node("c", {'val': 3}), Node("d", {'val': 4}),
-    #            Node("e", {'val': 5}), Node("f", {'val': 6})]
-    # connections_1 = [('a', 'c'), ('b', 'd'), ('c', 'f'), ('c', 'e'), ('c', 'd'), ('d', 'f')]
-    # gr = Graph(nodes_1, connections_1)
-    gr = gen_random_graph(6, 10)
+    """
+    Generates random graph and solve task
+    """
+    num_nodes = 10
+    num_edges = 25
+    gr = gen_random_graph(num_nodes, num_edges)
     inv_friends_dummy(gr)
     gr.plot_graph()

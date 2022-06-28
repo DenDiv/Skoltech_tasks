@@ -1,5 +1,5 @@
 import unittest
-from graph import Node, Graph, gen_random_graph
+from graph import Node, Graph, gen_random_graph, inv_friends_dummy
 
 
 class TestGraphFunc(unittest.TestCase):
@@ -48,6 +48,37 @@ class TestGraphFunc(unittest.TestCase):
         self.assertEqual(edg_count, 15)
         self.assertRaises(Exception, gen_random_graph, 0, 15)
         self.assertRaises(Exception, gen_random_graph, 10, 150)
+
+    def test_inv_friend(self):
+        nodes_1 = [Node("a", {'val': 1}), Node("b", {'val': 2}), Node("c", {'val': 3}), Node("d", {'val': 4}),
+                   Node("e", {'val': 5}), Node("f", {'val': 6})]
+        connections_1 = [('a', 'c'), ('b', 'd'), ('c', 'f'), ('c', 'e'), ('c', 'd'), ('d', 'f')]
+        gr = Graph(nodes_1, connections_1)
+        res_friends = inv_friends_dummy(gr)
+        self.assertListEqual(['a', 'b', 'e', 'f'], res_friends)
+        gr.plot_graph("plots/test_gr_1.png")
+
+        # all nodes connected with each other
+        gr = gen_random_graph(5, 10)
+        res_friends = inv_friends_dummy(gr)
+        self.assertListEqual(['0'], res_friends)
+        gr.plot_graph("plots/test_gr_2.png")
+
+        # with 0 edges
+        gr = gen_random_graph(5, 0)
+        res_friends = inv_friends_dummy(gr)
+        self.assertListEqual(['0', '1', '2', '3', '4'], res_friends)
+        gr.plot_graph("plots/test_gr_3.png")
+
+        # another tests
+        nodes_1 = [Node("0", {'val': 1}), Node("1", {'val': 2}), Node("2", {'val': 3}), Node("3", {'val': 4}),
+                   Node("4", {'val': 5}), Node("5", {'val': 6})]
+        connections_1 = [('0', '2'), ('0', '3'), ('0', '4'), ('0', '5'), ('1', '2'), ('2', '4'),
+                         ('3', '5'), ('4', '5')]
+        gr = Graph(nodes_1, connections_1)
+        res_friends = inv_friends_dummy(gr)
+        self.assertListEqual(['1', '3', '4'], res_friends)
+        gr.plot_graph("plots/test_gr_4.png")
 
 
 if __name__ == '__main__':
